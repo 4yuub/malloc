@@ -4,33 +4,40 @@ endif
 
 NAME := lib/libft_malloc_$(HOSTTYPE).so
 LINK := lib/libft_malloc.so
-BUILD_DIR := build 
+LIB_DIR := lib
+BUILD_DIR := build
+INC_DIR := include
 SRC_DIR := src
 RM := rm -rf
 CC := cc
-CFLAGS := -Wall -Wextra -Werror
-SRCS := 
+CFLAGS := -Wall -Wextra -Werror -nostdlib -O3
+SRCS := malloc free
 OBJS := $(SRCS:=.o)
 
 
 all: $(LINK)
 
-$(NAME): $(OBJS)
-	@mkdir -p $(shell dirname $@)
-	touch $@
+$(NAME): $(addprefix $(BUILD_DIR)/, $(OBJS)) $(LIB_DIR)
+	$(CC) -shared -o $@ $(addprefix $(BUILD_DIR)/, $(OBJS))
 
 $(LINK): $(NAME)
-	@mkdir -p $(shell dirname $@)
 	ln -sf $< $@
 
-$(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
-	@mkdir -p $(shell dirname $@)
-	$(CC) $(CFLAGS) -c $< -o $@
+$(BUILD_DIR)/%.o: $(SRC_DIR)/%.c $(BUILD_DIR)
+	$(CC) $(CFLAGS) -c $< -o $@ -I$(INC_DIR)
+
+$(BUILD_DIR):
+	mkdir -p $@
+
+$(LIB_DIR):
+	mkdir -p $@
 
 clean:
 	$(RM) $(BUILD_DIR)
 
 fclean: clean
-	$(RM) $(NAME) $(LINK)
+	$(RM) $(LIB_DIR)
 
 re: fclean all
+
+.PHONY: all clean fclean re
