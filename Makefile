@@ -11,7 +11,7 @@ SRC_DIR := src
 RM := rm -rf
 CC := cc
 CFLAGS := -Wall -Wextra -Werror -nostdlib -O3
-SRCS := malloc free
+SRCS := malloc free realloc show_alloc_mem manage
 OBJS := $(SRCS:=.o)
 
 
