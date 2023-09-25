@@ -12,7 +12,7 @@ void increase_local_mem_size()
   const size_t local_mem_size = malloc_state.local_mem_size;
   // allocate new memory
   void *new_mem = mmap(NULL, local_mem_size ? local_mem_size * 2 : page_size,
-                       PROT_READ | PROT_WRITE, MAP_ANONYMOUS, -1, -1);
+                       PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, 0, 0);
   if (new_mem == MAP_FAILED)
   {
     THROW(ERR_ALLOCATION_FAILED);
@@ -36,7 +36,8 @@ void increase_block_size(t_block block)
 {
   const size_t block_size = block->size;
   // allocate new memory
-  void *new_mem = mmap(NULL, block_size * 2, PROT_READ | PROT_WRITE, MAP_ANONYMOUS, -1, -1);
+  void *new_mem = mmap(NULL, block_size * 2,
+                       PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, 0, 0);
   if (new_mem == MAP_FAILED)
   {
     THROW(ERR_ALLOCATION_FAILED);
@@ -60,7 +61,7 @@ t_block create_block(size_t size, t_block prev, t_block next, bool assign_mem)
 {
   t_block block;
 
-  while (malloc_state.local_mem_used_size + sizeof(struct s_block) >= malloc_state.local_mem_size)
+  while (malloc_state.local_mem_used_size + sizeof(struct s_block) > malloc_state.local_mem_size)
     increase_local_mem_size();
 
   // assign block
@@ -74,7 +75,8 @@ t_block create_block(size_t size, t_block prev, t_block next, bool assign_mem)
   block->ptr = NULL; // will be assigned later
   if (assign_mem)
   {
-    block->ptr = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_ANONYMOUS, -1, -1);
+    block->ptr = mmap(NULL, size, PROT_READ | PROT_WRITE,
+                      MAP_PRIVATE | MAP_ANONYMOUS, 0, 0);
     if (block->ptr == MAP_FAILED)
     {
       THROW(ERR_ALLOCATION_FAILED);
@@ -86,10 +88,12 @@ t_block create_block(size_t size, t_block prev, t_block next, bool assign_mem)
 
 void free_block(t_block block)
 {
-  if (block->ptr != NULL)
+  if (block && block->ptr != NULL)
+  {
     munmap(block->ptr, block->size);
-  block->ptr = NULL;
-  block->free = true;
+    block->ptr = NULL;
+    block->free = true;
+  }
 }
 
 void clean_up()
