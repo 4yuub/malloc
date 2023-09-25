@@ -2,6 +2,7 @@
 #define MALLOC_H_INCLUDED
 #include <stddef.h>
 #include <stdbool.h>
+#include <setjmp.h>
 #define TINY_MAX_SIZE 128
 #define SMALL_MAX_SIZE 1024
 
@@ -22,7 +23,7 @@ struct s_block
   void *ptr;
 };
 
-typedef struct s_malloc_state *t_malloc_state;
+typedef struct s_malloc_state t_malloc_state;
 
 struct s_malloc_state
 {
@@ -43,7 +44,10 @@ struct s_malloc_state
 };
 
 extern t_malloc_state malloc_state;
-extern void *local_mem;
-extern size_t local_mem_size;
+extern jmp_buf jmp_env;
+#define TRY if (!setjmp(jmp_env))
+#define CATCH else
+#define THROW(ERR) longjmp(jmp_env, ERR)
+#define ERR_ALLOCATION_FAILED 1
 
 #endif
