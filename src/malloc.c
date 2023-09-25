@@ -15,9 +15,8 @@ void *malloc(size_t size)
       init();
       first_call = false;
     }
-    (void)size;
     // malloc implementation
-    return NULL; // allocated memory or NULL in case of error
+    return (void *)size; // allocated memory or NULL in case of error
   }
   CATCH
   {

@@ -3,15 +3,16 @@
 #include <string.h>
 #include <unistd.h>
 #include <stdlib.h>
-
+#include <stdio.h>
 t_malloc_state malloc_state = {0};
 
 void increase_local_mem_size()
 {
   const size_t page_size = getpagesize();
   const size_t local_mem_size = malloc_state.local_mem_size;
+  const size_t new_size = local_mem_size ? local_mem_size * 2 : page_size;
   // allocate new memory
-  void *new_mem = mmap(NULL, local_mem_size ? local_mem_size * 2 : page_size,
+  void *new_mem = mmap(NULL, new_size,
                        PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, 0, 0);
   if (new_mem == MAP_FAILED)
   {
@@ -29,7 +30,7 @@ void increase_local_mem_size()
 
   // assign new memory
   malloc_state.local_mem = new_mem;
-  malloc_state.local_mem_size *= 2;
+  malloc_state.local_mem_size = new_size;
 }
 
 void increase_block_size(t_block block)
@@ -67,7 +68,6 @@ t_block create_block(size_t size, t_block prev, t_block next, bool assign_mem)
   // assign block
   block = (t_block)(malloc_state.local_mem + malloc_state.local_mem_used_size);
   malloc_state.local_mem_used_size += sizeof(struct s_block);
-
   block->size = size;
   block->prev = prev;
   block->next = next;
