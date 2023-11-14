@@ -12,11 +12,10 @@ void increase_local_mem_size()
   const size_t local_mem_size = malloc_state.local_mem_size;
   const size_t new_size = local_mem_size ? local_mem_size * 2 : page_size;
   // allocate new memory
-  void *new_mem = mmap(NULL, new_size,
-                       PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, 0, 0);
+  void *new_mem = mmap(NULL, new_size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, 0, 0);
   if (new_mem == MAP_FAILED)
   {
-    THROW(ERR_ALLOCATION_FAILED);
+    error = true;
     return;
   }
   if (malloc_state.local_mem != NULL)
@@ -37,11 +36,10 @@ void increase_block_size(t_block block)
 {
   const size_t block_size = block->size;
   // allocate new memory
-  void *new_mem = mmap(NULL, block_size * 2,
-                       PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, 0, 0);
+  void *new_mem = mmap(NULL, block_size * 2, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, 0, 0);
   if (new_mem == MAP_FAILED)
   {
-    THROW(ERR_ALLOCATION_FAILED);
+    error = true;
     return;
   }
   if (block->ptr != NULL)
@@ -63,23 +61,31 @@ t_block create_block(size_t size, t_block prev, t_block next, bool assign_mem)
   t_block block;
 
   while (malloc_state.local_mem_used_size + sizeof(struct s_block) > malloc_state.local_mem_size)
+  {
     increase_local_mem_size();
+    if (error)
+      return NULL;
+  }
 
   // assign block
   block = (t_block)(malloc_state.local_mem + malloc_state.local_mem_used_size);
   malloc_state.local_mem_used_size += sizeof(struct s_block);
   block->size = size;
+  block->ptr = malloc_state.local_mem;
   block->prev = prev;
+  if (prev != NULL)
+    prev->next = block;
   block->next = next;
+  if (next != NULL)
+    next->prev = block;
   block->free = true;
   block->ptr = NULL; // will be assigned later
   if (assign_mem)
   {
-    block->ptr = mmap(NULL, size, PROT_READ | PROT_WRITE,
-                      MAP_PRIVATE | MAP_ANONYMOUS, 0, 0);
+    block->ptr = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, 0, 0);
     if (block->ptr == MAP_FAILED)
     {
-      THROW(ERR_ALLOCATION_FAILED);
+      error = true;
       return NULL;
     }
   }
@@ -108,6 +114,10 @@ void clean_up()
 
 void init()
 {
+  static bool first = true;
+  if (!first)
+    return;
+
   const size_t page_size = getpagesize();
   atexit(clean_up);
   // initialize malloc_state
@@ -123,4 +133,7 @@ void init()
   malloc_state.tiny_alloc = NULL;
   malloc_state.small_alloc = NULL;
   malloc_state.large_alloc = NULL;
+
+  if (!error)
+    first = false;
 }

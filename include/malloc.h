@@ -3,8 +3,8 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <setjmp.h>
-#define TINY_MAX_SIZE 128
-#define SMALL_MAX_SIZE 1024
+#define TINY_MAX_SIZE 1024
+#define SMALL_MAX_SIZE 4096
 
 void init(void);
 void *malloc(size_t size);
@@ -42,12 +42,10 @@ struct s_malloc_state
   t_block small_alloc;
   t_block large_alloc;
 };
+void increase_block_size(t_block block);
+t_block create_block(size_t size, t_block prev, t_block next, bool assign_mem);
 
 extern t_malloc_state malloc_state;
-extern jmp_buf jmp_env;
-#define TRY if (!setjmp(jmp_env))
-#define CATCH else
-#define THROW(ERR) longjmp(jmp_env, ERR)
-#define ERR_ALLOCATION_FAILED 1
+extern bool error;
 
 #endif
