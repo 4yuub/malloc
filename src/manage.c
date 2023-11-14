@@ -18,18 +18,31 @@ void increase_local_mem_size()
     error = true;
     return;
   }
-  if (malloc_state.local_mem != NULL)
-  {
-    // copy old memory to new memory
-    memcpy(new_mem, malloc_state.local_mem, malloc_state.local_mem_size);
-
-    // unmap old memory
-    munmap(malloc_state.local_mem, malloc_state.local_mem_size);
-  }
 
   // assign new memory
   malloc_state.local_mem = new_mem;
   malloc_state.local_mem_size = new_size;
+  malloc_state.local_mem_used_size = 0;
+
+  if (malloc_state.local_mem != NULL)
+  {
+    // move old memory to done with memory to be freed later
+    t_block done_with_mem = malloc_state.done_with_mem;
+    while (done_with_mem != NULL && done_with_mem->next != NULL)
+      done_with_mem = done_with_mem->next;
+
+    t_block new_block = create_block(local_mem_size, done_with_mem, NULL, false);
+    if (error)
+    {
+      printf("error\n");
+      return;
+    }
+
+    if (done_with_mem == NULL)
+      malloc_state.done_with_mem = new_block;
+
+    new_block->ptr = malloc_state.local_mem;
+  }
 }
 
 void increase_block_size(t_block block)
@@ -44,11 +57,18 @@ void increase_block_size(t_block block)
   }
   if (block->ptr != NULL)
   {
-    // copy old memory to new memory
-    memcpy(new_mem, block->ptr, block->size);
+    // move old memory to done with memory to be freed later
+    t_block done_with_mem = malloc_state.done_with_mem;
+    while (done_with_mem != NULL && done_with_mem->next != NULL)
+      done_with_mem = done_with_mem->next;
+    t_block new_block = create_block(block_size, done_with_mem, NULL, false);
+    if (error)
+      return;
 
-    // unmap old memory
-    munmap(block->ptr, block->size);
+    if (done_with_mem == NULL)
+      malloc_state.done_with_mem = new_block;
+
+    new_block->ptr = block->ptr;
   }
 
   // assign new memory
@@ -108,6 +128,7 @@ void clean_up()
   free_block(malloc_state.tiny);
   free_block(malloc_state.small);
   free_block(malloc_state.large_alloc);
+  free_block(malloc_state.done_with_mem);
   if (malloc_state.local_mem != NULL)
     munmap(malloc_state.local_mem, malloc_state.local_mem_size);
 }
@@ -124,6 +145,7 @@ void init()
   malloc_state.local_mem_size = 0;
   malloc_state.local_mem_used_size = 0;
   malloc_state.local_mem = NULL;
+  malloc_state.done_with_mem = NULL;
   malloc_state.tiny = create_block(page_size * 20, NULL, NULL, true);
   malloc_state.small = create_block(page_size * 40, NULL, NULL, true);
   malloc_state.tiny_size = page_size * 20;

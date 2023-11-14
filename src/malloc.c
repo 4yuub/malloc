@@ -44,6 +44,10 @@ t_block small_allocation(size_t size, bool is_tiny)
     if (error)
       return NULL;
   }
+  if (is_tiny)
+    malloc_state.tiny_used_size = 0;
+  else
+    malloc_state.small_used_size = 0;
 
   t_block new_block = create_block(size, last_alloc, NULL, false);
   if (error)
@@ -109,7 +113,6 @@ t_block find_block(size_t size)
 #include <stdio.h>
 void *malloc(size_t size)
 {
-  printf("called malloc\n");
   error = false;
 
   init();

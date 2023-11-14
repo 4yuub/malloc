@@ -32,6 +32,7 @@ struct s_malloc_state
   void *local_mem;
   size_t tiny_size;
   size_t small_size;
+  t_block done_with_mem;
   t_block tiny;
   t_block small;
 
