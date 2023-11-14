@@ -10,7 +10,7 @@ INC_DIR := include
 SRC_DIR := src
 RM := rm -rf
 CC := cc
-CFLAGS := -Wall -Wextra -Werror -nostdlib
+CFLAGS := -D__MALLOC_IMPL__ -Wall -Wextra -Werror -nostdlib
 SRCS := malloc free realloc show_alloc_mem manage
 OBJS := $(SRCS:=.o)
 

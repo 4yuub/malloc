@@ -110,7 +110,7 @@ t_block find_block(size_t size)
     return small_allocation(size, false);
   return large_allocation(size);
 }
-#include <stdio.h>
+
 void *malloc(size_t size)
 {
   error = false;

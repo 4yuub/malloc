@@ -1,16 +1,20 @@
 #ifndef MALLOC_H_INCLUDED
 #define MALLOC_H_INCLUDED
 #include <stddef.h>
+
+#ifdef __MALLOC_IMPL__
 #include <stdbool.h>
-#include <setjmp.h>
 #define TINY_MAX_SIZE 1024
 #define SMALL_MAX_SIZE 4096
+#endif
 
-void init(void);
 void *malloc(size_t size);
 void *realloc(void *ptr, size_t size);
 void free(void *ptr);
 void show_alloc_mem(void);
+
+#ifdef __MALLOC_IMPL__
+void init(void);
 
 typedef struct s_block *t_block;
 
@@ -48,5 +52,6 @@ t_block create_block(size_t size, t_block prev, t_block next, bool assign_mem);
 
 extern t_malloc_state malloc_state;
 extern bool error;
+#endif
 
 #endif
