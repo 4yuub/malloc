@@ -4,6 +4,12 @@
 
 #ifdef __MALLOC_IMPL__
 #include <stdbool.h>
+#include <string.h>
+#include <sys/mman.h>
+#include <unistd.h>
+#include <stdlib.h>
+#include <stdio.h> //! remove this
+#include <stddef.h>
 #define TINY_MAX_SIZE 1024
 #define SMALL_MAX_SIZE 4096
 #endif
@@ -49,7 +55,7 @@ struct s_malloc_state
 };
 void increase_block_size(t_block block);
 t_block create_block(size_t size, t_block prev, t_block next, bool assign_mem);
-
+t_block search_block(void *ptr);
 extern t_malloc_state malloc_state;
 extern bool error;
 #endif

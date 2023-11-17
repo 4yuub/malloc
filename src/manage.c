@@ -1,10 +1,34 @@
 #include "malloc.h"
-#include <sys/mman.h>
-#include <string.h>
-#include <unistd.h>
-#include <stdlib.h>
-#include <stdio.h>
+
 t_malloc_state malloc_state = {0};
+
+t_block search_block(void *ptr)
+{
+  t_block block = malloc_state.tiny_alloc;
+  while (block)
+  {
+    if (block->ptr == ptr)
+      return block;
+    block = block->next;
+  }
+
+  block = malloc_state.small_alloc;
+  while (block)
+  {
+    if (block->ptr == ptr)
+      return block;
+    block = block->next;
+  }
+
+  block = malloc_state.large_alloc;
+  while (block)
+  {
+    if (block->ptr == ptr)
+      return block;
+    block = block->next;
+  }
+  return NULL;
+}
 
 void increase_local_mem_size()
 {
@@ -33,10 +57,7 @@ void increase_local_mem_size()
 
     t_block new_block = create_block(local_mem_size, done_with_mem, NULL, false);
     if (error)
-    {
-      printf("error\n");
       return;
-    }
 
     if (done_with_mem == NULL)
       malloc_state.done_with_mem = new_block;
@@ -103,7 +124,7 @@ t_block create_block(size_t size, t_block prev, t_block next, bool assign_mem)
   if (assign_mem)
   {
     block->ptr = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, 0, 0);
-    if (block->ptr == MAP_FAILED)
+    if (block->ptr == MAP_FAILED) // !error
     {
       error = true;
       return NULL;
@@ -147,7 +168,11 @@ void init()
   malloc_state.local_mem = NULL;
   malloc_state.done_with_mem = NULL;
   malloc_state.tiny = create_block(page_size * 20, NULL, NULL, true);
+  if (error)
+    return;
   malloc_state.small = create_block(page_size * 40, NULL, NULL, true);
+  if (error)
+    return;
   malloc_state.tiny_size = page_size * 20;
   malloc_state.small_size = page_size * 40;
   malloc_state.tiny_used_size = 0;

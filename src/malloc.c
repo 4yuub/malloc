@@ -1,8 +1,4 @@
 #include "malloc.h"
-#include <stddef.h>
-#include <stdbool.h>
-#include <unistd.h>
-#include <stdio.h>
 
 bool error;
 
@@ -101,7 +97,7 @@ t_block large_allocation(size_t size)
   new_block->free = false;
   return new_block;
 }
-#include <stdio.h>
+
 t_block find_block(size_t size)
 {
   if (size <= TINY_MAX_SIZE)
