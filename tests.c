@@ -3,7 +3,7 @@
 #ifdef REAL_MALLOC
 #include <stdlib.h>
 #else
-// #include "malloc.h"
+#include "malloc.h"
 #endif
 
 int main(void)
@@ -32,6 +32,8 @@ int main(void)
   char *str4 = malloc(2000);
   printf("- should return different address:\n");
   printf("malloc(2000): %p => %s\n", str4, str4 != NULL && str4 != str3 ? "OK" : "KO");
+
+
 
   for (int i = 0; i < 9; i++)
     str3[i] = 'a';
@@ -70,11 +72,11 @@ int main(void)
 
   // free
   printf("\nfree:\n");
-  free(str);
+  free(str2);
   char *str9 = malloc(10);
-  printf("- should return the same address as str:\n");
+  printf("- should return the same address as str2:\n");
   printf("(note) this may fail even if free is correct\n");
-  printf("malloc(10): %p => %s\n", str9, str9 == str ? "OK" : "KO");
+  printf("malloc(10): %p => %s\n", str9, str9 == str2 ? "OK" : "KO");
 
 #ifndef REAL_MALLOC
   // show_alloc_mem
