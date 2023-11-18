@@ -43,6 +43,7 @@ t_block small_allocation(size_t size, bool is_tiny)
       malloc_state.tiny_used_size = 0;
     else
       malloc_state.small_used_size = 0;
+    used_size = 0;
   }
 
   t_block new_block = create_block(size, last_alloc, NULL, false);
