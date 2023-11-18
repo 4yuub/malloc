@@ -8,7 +8,7 @@
 #include <sys/mman.h>
 #include <unistd.h>
 #include <stdlib.h>
-#include <stdio.h> //! remove this
+#include <stdio.h>
 #include <stddef.h>
 #define TINY_MAX_SIZE 1024
 #define SMALL_MAX_SIZE 4096
