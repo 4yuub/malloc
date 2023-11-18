@@ -74,9 +74,14 @@ int main(void)
   printf("\nfree:\n");
   free(str2);
   char *str9 = malloc(10);
+  printf("- should return the same address as str:\n");
+  printf("(note) this may fail even if free is correct\n");
+  printf("malloc(10): %p => %s\n", str9, str9 == str ? "OK" : "KO");
+
+  char *str10 = malloc(10);
   printf("- should return the same address as str2:\n");
   printf("(note) this may fail even if free is correct\n");
-  printf("malloc(10): %p => %s\n", str9, str9 == str2 ? "OK" : "KO");
+  printf("malloc(10): %p => %s\n", str10, str10 == str2 ? "OK" : "KO");
 
 #ifndef REAL_MALLOC
   // show_alloc_mem
