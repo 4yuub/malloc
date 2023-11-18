@@ -2,9 +2,15 @@
 
 void *realloc(void *ptr, size_t size)
 {
+  if (!ptr || size == 0) {
+    free(ptr);
+    return malloc(size);
+  }
+
   t_block block = search_block(ptr);
-  if (!block)
-    return NULL; // TODO: check if this is the correct behavior
+  if (!block) {
+    return NULL; // behavior is undefined
+  }
 
   if (block->size >= size)
     return ptr;

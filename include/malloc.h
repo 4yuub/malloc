@@ -12,6 +12,7 @@
 #include <stddef.h>
 #define TINY_MAX_SIZE 1024
 #define SMALL_MAX_SIZE 4096
+#define MALLOC_MIN_SIZE 4
 #endif
 
 void *malloc(size_t size);

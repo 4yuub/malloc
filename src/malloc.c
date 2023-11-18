@@ -115,7 +115,7 @@ void *malloc(size_t size)
   if (error)
     return NULL;
 
-  t_block block = find_block(size);
+  t_block block = find_block(size < MALLOC_MIN_SIZE ? MALLOC_MIN_SIZE : size);
   if (error)
     return NULL;
   return block->ptr;
