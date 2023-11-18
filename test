@@ -1,0 +1,6 @@
+#!/bin/bash
+
+echo "Compiling and running tests..."
+make re > /dev/null
+cc -Wall -Wextra -Werror lib/libft_malloc_arm64_Darwin.so tests.c -Iinclude -o test.out
+./test.out

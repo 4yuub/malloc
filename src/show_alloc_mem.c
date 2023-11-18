@@ -9,8 +9,11 @@ void show_alloc_mem(void)
     block = malloc_state.tiny_alloc;
     while (block)
     {
-        printf("%p - %p : %zu bytes\n", block->ptr, block->ptr + block->size, block->size);
-        total_size += block->size;
+        if (!block->free)
+        {
+            printf("%p - %p : %zu bytes\n", block->ptr, block->ptr + block->size, block->size);
+            total_size += block->size;
+        }
         block = block->next;
     }
 
@@ -19,8 +22,11 @@ void show_alloc_mem(void)
     block = malloc_state.small_alloc;
     while (block)
     {
-        printf("%p - %p : %zu bytes\n", block->ptr, block->ptr + block->size, block->size);
-        total_size += block->size;
+        if (!block->free)
+        {
+            printf("%p - %p : %zu bytes\n", block->ptr, block->ptr + block->size, block->size);
+            total_size += block->size;
+        }
         block = block->next;
     }
 
@@ -29,8 +35,11 @@ void show_alloc_mem(void)
     block = malloc_state.large_alloc;
     while (block)
     {
-        printf("%p - %p : %zu bytes\n", block->ptr, block->ptr + block->size, block->size);
-        total_size += block->size;
+        if (!block->free)
+        {
+            printf("%p - %p : %zu bytes\n", block->ptr, block->ptr + block->size, block->size);
+            total_size += block->size;
+        }
         block = block->next;
     }
 
