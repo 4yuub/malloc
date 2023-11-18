@@ -83,6 +83,12 @@ int main(void)
   printf("(note) this may fail even if free is correct\n");
   printf("malloc(10): %p => %s\n", str10, str10 == str2 ? "OK" : "KO");
 
+  // case of malloc failure
+  printf("\ncase of malloc failure:\n");
+  char *str11 = malloc(-1);
+  printf("- should return NULL:\n");
+  printf("malloc(-1): %p => %s\n", str11, str11 == NULL ? "OK" : "KO");
+
 #ifndef REAL_MALLOC
   // show_alloc_mem
   printf("\nshow_alloc_mem:\n");
