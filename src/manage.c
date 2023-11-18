@@ -124,7 +124,7 @@ t_block create_block(size_t size, t_block prev, t_block next, bool assign_mem)
   if (assign_mem)
   {
     block->ptr = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, 0, 0);
-    if (block->ptr == MAP_FAILED) // !error
+    if (block->ptr == MAP_FAILED)
     {
       error = true;
       return NULL;
@@ -161,7 +161,6 @@ void init()
     return;
 
   const size_t page_size = getpagesize();
-  atexit(clean_up);
   // initialize malloc_state
   malloc_state.local_mem_size = 0;
   malloc_state.local_mem_used_size = 0;
@@ -172,7 +171,10 @@ void init()
     return;
   malloc_state.small = create_block(page_size * 40, NULL, NULL, true);
   if (error)
+  {
+    free_block(malloc_state.tiny);
     return;
+  }
   malloc_state.tiny_size = page_size * 20;
   malloc_state.small_size = page_size * 40;
   malloc_state.tiny_used_size = 0;
@@ -182,5 +184,8 @@ void init()
   malloc_state.large_alloc = NULL;
 
   if (!error)
+  {
     first = false;
+    atexit(clean_up);
+  }
 }
